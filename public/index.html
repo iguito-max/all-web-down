@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Cole um link público, escolha o formato e baixe sem sair da página."
+    />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#eafcf8" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#041b22" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+    <title>All Web Down</title>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="downloader" aria-labelledby="title">
+        <div class="brand" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none">
+            <path d="M16 5v15m0 0 6-6m-6 6-6-6" />
+            <path d="M7 25h18" />
+          </svg>
+        </div>
+
+        <h1 id="title">All Web Down</h1>
+        <p class="tagline">Cole. Escolha. Baixe.</p>
+
+        <form id="download-form" class="download-form" novalidate>
+          <label class="sr-only" for="media-url">Link público da mídia</label>
+          <div class="glass-bar">
+            <svg class="link-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M10.6 13.4a4 4 0 0 0 5.7 0l2.1-2.1a4 4 0 1 0-5.7-5.7l-1.2 1.2" />
+              <path d="M13.4 10.6a4 4 0 0 0-5.7 0l-2.1 2.1a4 4 0 1 0 5.7 5.7l1.2-1.2" />
+            </svg>
+            <input
+              id="media-url"
+              name="url"
+              type="url"
+              inputmode="url"
+              autocomplete="url"
+              spellcheck="false"
+              placeholder="Cole o link aqui"
+              aria-describedby="status usage-note"
+            />
+            <button id="download-button" type="submit" disabled>
+              <span>Baixar</span>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 4v11m0 0 4-4m-4 4-4-4" />
+                <path d="M5 20h14" />
+              </svg>
+            </button>
+          </div>
+
+          <div id="result" class="result" hidden>
+            <div class="result-head">
+              <span id="platform" class="platform"></span>
+              <span id="media-title" class="media-title"></span>
+            </div>
+            <div id="formats" class="formats" role="radiogroup" aria-label="Formato e qualidade"></div>
+          </div>
+
+          <p id="status" class="status" role="status" aria-live="polite"></p>
+        </form>
+
+        <p id="usage-note" class="usage-note">Somente conteúdo público que você pode salvar.</p>
+      </section>
+    </main>
+
+    <iframe name="download-frame" title="Download" class="download-frame"></iframe>
+    <script src="/app.js" defer></script>
+  </body>
+</html>
+

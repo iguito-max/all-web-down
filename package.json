@@ -1,0 +1,9 @@
+{
+  "name": "all-web-down",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "check": "node --check public/app.js && python3 -m py_compile api/_media.py api/analyze.py api/download.py"
+  }
+}
+
