@@ -21,4 +21,4 @@ vercel dev
 
 ## Deploy
 
-O app usa um único entrypoint FastAPI no Vercel. A credencial compartilhada com a Edge Function do Supabase é injetada somente no deploy e nunca é versionada.
+O app usa um único entrypoint FastAPI no Vercel. A Edge Function do Supabase valida a identidade OIDC assinada do projeto Vercel, sem chave estática no código ou no navegador.

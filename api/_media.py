@@ -171,7 +171,7 @@ def friendly_error(error):
     message = str(error).lower()
     if any(token in message for token in ("50 mb", "file size", "maximum file size")):
         return "Esse formato ultrapassa o limite de 50 MB do serviço gratuito. Escolha uma qualidade menor."
-    if any(token in message for token in ("armazenamento temporário", "storage")):
+    if any(token in message for token in ("armazenamento temporário", "identidade segura", "storage")):
         return "O armazenamento temporário está indisponível agora. Tente novamente em instantes."
     if any(token in message for token in ("unsupported url", "no suitable extractor")):
         return "Esse tipo de link ainda não é compatível."

@@ -25,14 +25,7 @@ from api.analyze import build_options
 from api.download import ALLOWED_OUTPUTS, progress_guard
 
 
-SUPABASE_EDGE_URL = (
-    "https://nnfppxftbtvuvgphzfwj.supabase.co/functions/v1/all-web-down-storage"
-)
-
-try:
-    from api._deploy_secret import EDGE_SECRET
-except ImportError:
-    EDGE_SECRET = os.environ.get("AWD_EDGE_SECRET", "")
+SUPABASE_EDGE_URL = "https://nnfppxftbtvuvgphzfwj.supabase.co/functions/v1/all-web-down-storage"
 
 
 app = FastAPI(
@@ -48,14 +41,15 @@ def api_error(status, message):
 
 
 def storage_request(action, **payload):
-    if not EDGE_SECRET:
-        raise RuntimeError("O armazenamento temporário não está configurado.")
+    oidc_token = os.environ.get("VERCEL_OIDC_TOKEN", "")
+    if not oidc_token:
+        raise RuntimeError("A identidade segura do deployment não está disponível.")
 
     response = requests.post(
         SUPABASE_EDGE_URL,
         headers={
+            "Authorization": f"Bearer {oidc_token}",
             "Content-Type": "application/json",
-            "x-all-web-down-key": EDGE_SECRET,
         },
         json={"action": action, **payload},
         timeout=25,
@@ -70,7 +64,11 @@ def storage_request(action, **payload):
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "storage": bool(EDGE_SECRET), "maxBytes": MAX_DOWNLOAD_BYTES}
+    return {
+        "ok": True,
+        "storage": bool(os.environ.get("VERCEL_OIDC_TOKEN")),
+        "maxBytes": MAX_DOWNLOAD_BYTES,
+    }
 
 
 @app.get("/favicon.ico", include_in_schema=False)
