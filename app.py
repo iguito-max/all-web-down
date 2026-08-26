@@ -42,13 +42,20 @@ def api_error(status, message):
 
 def storage_request(action, **payload):
     oidc_token = os.environ.get("VERCEL_OIDC_TOKEN", "")
-    if not oidc_token:
+    edge_secret = os.environ.get("AWD_EDGE_SECRET", "")
+    if not oidc_token and not edge_secret:
         raise RuntimeError("A identidade segura do deployment não está disponível.")
+
+    auth_headers = (
+        {"Authorization": f"Bearer {oidc_token}"}
+        if oidc_token
+        else {"x-all-web-down-key": edge_secret}
+    )
 
     response = requests.post(
         SUPABASE_EDGE_URL,
         headers={
-            "Authorization": f"Bearer {oidc_token}",
+            **auth_headers,
             "Content-Type": "application/json",
         },
         json={"action": action, **payload},
@@ -66,7 +73,9 @@ def storage_request(action, **payload):
 def health():
     return {
         "ok": True,
-        "storage": bool(os.environ.get("VERCEL_OIDC_TOKEN")),
+        "storage": bool(
+            os.environ.get("VERCEL_OIDC_TOKEN") or os.environ.get("AWD_EDGE_SECRET")
+        ),
         "maxBytes": MAX_DOWNLOAD_BYTES,
     }
 
