@@ -8,8 +8,7 @@ from pathlib import Path
 import imageio_ffmpeg
 import requests
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse, RedirectResponse
 from yt_dlp import YoutubeDL
 
 from api._media import (
@@ -72,6 +71,11 @@ def storage_request(action, **payload):
 @app.get("/api/health")
 def health():
     return {"ok": True, "storage": bool(EDGE_SECRET), "maxBytes": MAX_DOWNLOAD_BYTES}
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return RedirectResponse("/favicon.svg", status_code=307)
 
 
 @app.post("/api/analyze")
@@ -192,7 +196,3 @@ async def download(request: Request):
     finally:
         if temp_dir:
             shutil.rmtree(temp_dir, ignore_errors=True)
-
-
-public_dir = Path(__file__).parent / "public"
-app.mount("/", StaticFiles(directory=public_dir, html=True), name="frontend")
