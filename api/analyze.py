@@ -2,6 +2,7 @@ import json
 from http.server import BaseHTTPRequestHandler
 
 from api._media import (
+    MAX_DOWNLOAD_BYTES,
     extract_media,
     friendly_error,
     human_size,
@@ -22,6 +23,10 @@ def format_score(item):
         number(item.get("tbr")),
         number(item.get("filesize")) or number(item.get("filesize_approx")),
     )
+
+
+def known_size(item):
+    return number(item.get("filesize")) or number(item.get("filesize_approx"))
 
 
 def audio_score(item):
@@ -60,6 +65,8 @@ def build_options(info):
 
     video_choices = {}
     for item in progressive:
+        if known_size(item) > MAX_DOWNLOAD_BYTES:
+            continue
         ext = str(item.get("ext") or "mp4").lower()
         height = int(number(item.get("height")))
         key = (ext, height or -1)
@@ -73,6 +80,9 @@ def build_options(info):
         family = "mp4" if ext in {"mp4", "mov"} else "webm"
         audio = best_audio_by_family.get(family) or max(audio_only, key=audio_score, default=None)
         if not audio:
+            continue
+        combined_size = known_size(item) + known_size(audio)
+        if combined_size > MAX_DOWNLOAD_BYTES:
             continue
         key = (ext, height or -1)
         current = video_choices.get(key)
@@ -108,6 +118,8 @@ def build_options(info):
 
     best_source_audio = {}
     for item in audio_only:
+        if known_size(item) > MAX_DOWNLOAD_BYTES:
+            continue
         ext = str(item.get("ext") or "").lower()
         current = best_source_audio.get(ext)
         if not current or audio_score(item) > audio_score(current):
@@ -202,4 +214,3 @@ class handler(BaseHTTPRequestHandler):
             self.send_json(400, {"error": str(error)})
         except Exception as error:
             self.send_json(422, {"error": friendly_error(error)})
-

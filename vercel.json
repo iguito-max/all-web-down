@@ -1,11 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "api/analyze.py": {
-      "maxDuration": 60
-    },
-    "api/download.py": {
-      "maxDuration": 300
+    "app.py": {
+      "maxDuration": 300,
+      "includeFiles": "public/**"
     }
   },
   "headers": [
@@ -30,12 +28,5 @@
         }
       ]
     }
-  ],
-  "rewrites": [
-    {
-      "source": "/",
-      "destination": "/index.html"
-    }
   ]
 }
-

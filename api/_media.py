@@ -7,6 +7,8 @@ from urllib.parse import urlparse
 from yt_dlp import YoutubeDL
 
 
+MAX_DOWNLOAD_BYTES = 49 * 1024 * 1024
+
 ALLOWED_HOSTS = {
     "bsky.app",
     "dailymotion.com",
@@ -108,6 +110,7 @@ def ydl_options(extra=None):
         "retries": 1,
         "fragment_retries": 1,
         "extract_flat": False,
+        "js_runtimes": {"node": {}},
         "http_headers": {
             "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.7",
         },
@@ -166,6 +169,10 @@ def downloaded_file(directory):
 
 def friendly_error(error):
     message = str(error).lower()
+    if any(token in message for token in ("50 mb", "file size", "maximum file size")):
+        return "Esse formato ultrapassa o limite de 50 MB do serviço gratuito. Escolha uma qualidade menor."
+    if any(token in message for token in ("armazenamento temporário", "storage")):
+        return "O armazenamento temporário está indisponível agora. Tente novamente em instantes."
     if any(token in message for token in ("unsupported url", "no suitable extractor")):
         return "Esse tipo de link ainda não é compatível."
     if any(token in message for token in ("private", "login required", "sign in", "cookies")):
@@ -186,4 +193,3 @@ def platform_name(host, info=None):
         return PLATFORM_NAMES[host]
     extractor = str((info or {}).get("extractor_key") or (info or {}).get("extractor") or "Mídia")
     return extractor.replace("IE", "").replace("_", " ").strip().title()
-

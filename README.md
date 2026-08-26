@@ -7,9 +7,10 @@ Uma interface minimalista para identificar formatos disponíveis em links públi
 - O navegador envia o link para `/api/analyze`.
 - Uma função Python usa `yt-dlp` para identificar a origem e listar formatos reais.
 - O usuário escolhe qualidade ou formato.
-- `/api/download` prepara o arquivo e o devolve com `Content-Disposition: attachment`, mantendo a interface aberta.
+- `/api/download` prepara o arquivo e o envia para um bucket privado temporário no Supabase.
+- O navegador recebe uma URL assinada com `Content-Disposition: attachment` e inicia o download sem sair da página.
 
-O projeto não usa banco de dados, não mantém histórico e não aceita conteúdo privado ou protegido por DRM. Baixe apenas conteúdo que você tem autorização para salvar.
+O projeto não mantém histórico e não aceita conteúdo privado ou protegido por DRM. O plano gratuito do Supabase limita cada arquivo temporário a 50 MB. Baixe apenas conteúdo que você tem autorização para salvar.
 
 ## Desenvolvimento
 
@@ -20,5 +21,4 @@ vercel dev
 
 ## Deploy
 
-O projeto é compatível com Vercel sem configuração adicional. As funções Python e os arquivos estáticos são detectados automaticamente.
-
+O app usa um único entrypoint FastAPI no Vercel. A credencial compartilhada com a Edge Function do Supabase é injetada somente no deploy e nunca é versionada.

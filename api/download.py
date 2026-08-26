@@ -10,18 +10,15 @@ from urllib.parse import parse_qs, quote
 import imageio_ffmpeg
 from yt_dlp import YoutubeDL
 
-from api._media import downloaded_file, friendly_error, safe_filename, validate_url, ydl_options
+from api._media import MAX_DOWNLOAD_BYTES, downloaded_file, friendly_error, safe_filename, validate_url, ydl_options
 
 
 ALLOWED_OUTPUTS = {"aac", "m4a", "mkv", "mov", "mp3", "mp4", "ogg", "opus", "wav", "webm"}
-MAX_DOWNLOAD_BYTES = 450 * 1024 * 1024
-
-
 def progress_guard(data):
     downloaded = data.get("downloaded_bytes") or 0
     total = data.get("total_bytes") or data.get("total_bytes_estimate") or 0
     if max(downloaded, total) > MAX_DOWNLOAD_BYTES:
-        raise RuntimeError("O arquivo ultrapassa o limite de 450 MB deste serviço.")
+        raise RuntimeError("O arquivo ultrapassa o limite de 50 MB deste serviço.")
 
 
 class handler(BaseHTTPRequestHandler):
@@ -113,4 +110,3 @@ class handler(BaseHTTPRequestHandler):
         finally:
             if temp_dir:
                 shutil.rmtree(temp_dir, ignore_errors=True)
-

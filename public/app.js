@@ -126,42 +126,42 @@ async function analyze() {
   }
 }
 
-function startDownload() {
+async function startDownload() {
   const option = analysis?.options.find((item) => item.key === selectedKey);
   if (!option) return;
-
-  const downloadForm = document.createElement("form");
-  downloadForm.method = "POST";
-  downloadForm.action = "/api/download";
-  downloadForm.target = "download-frame";
-  downloadForm.hidden = true;
-
-  const fields = {
-    url: normalizeUrl(input.value),
-    selection: option.selection,
-    mode: option.mode,
-    ext: option.ext,
-    quality: option.quality || "",
-  };
-
-  for (const [name, value] of Object.entries(fields)) {
-    const field = document.createElement("input");
-    field.type = "hidden";
-    field.name = name;
-    field.value = value;
-    downloadForm.append(field);
-  }
-
-  document.body.append(downloadForm);
   setBusy(true, "Preparando…");
-  setStatus("Preparando o arquivo. O download começará aqui mesmo…");
-  downloadForm.submit();
-  downloadForm.remove();
+  setStatus("Preparando o arquivo. Isso pode levar alguns instantes…");
 
-  window.setTimeout(() => {
-    setBusy(false);
+  try {
+    const response = await fetch("/api/download", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        url: normalizeUrl(input.value),
+        selection: option.selection,
+        mode: option.mode,
+        ext: option.ext,
+        quality: option.quality || "",
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok || !data.downloadUrl) {
+      throw new Error(data.error || "Não foi possível preparar o arquivo.");
+    }
+
+    const link = document.createElement("a");
+    link.href = data.downloadUrl;
+    link.download = data.filename || "all-web-down";
+    link.hidden = true;
+    document.body.append(link);
+    link.click();
+    link.remove();
     setStatus("Download iniciado. Você pode continuar nesta página.");
-  }, 2600);
+  } catch (error) {
+    setStatus(error.message || "Não foi possível preparar o arquivo.", "error");
+  } finally {
+    setBusy(false);
+  }
 }
 
 input.addEventListener("input", () => {
@@ -175,11 +175,5 @@ form.addEventListener("submit", (event) => {
   event.preventDefault();
   if (analysis && selectedKey) startDownload();
   else analyze();
-});
-
-window.addEventListener("message", (event) => {
-  if (event.origin !== window.location.origin || event.data?.type !== "download-error") return;
-  setBusy(false);
-  setStatus(event.data.message || "Não foi possível preparar o arquivo.", "error");
 });
 
