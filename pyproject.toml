@@ -1,2 +1,14 @@
+[project]
+name = "all-web-down"
+version = "1.0.0"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi==0.141.1",
+  "imageio-ffmpeg==0.6.0",
+  "requests==2.34.2",
+  "yt-dlp[default,curl-cffi]==2026.8.19",
+  "yt-dlp-ejs==0.8.0",
+]
+
 [tool.vercel]
 entrypoint = "app:app"
